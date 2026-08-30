@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{const f=document.querySelector('.site-footer .container')||document.querySelector('footer');if(f&&!f.querySelector('.casastudent-family')){const b=document.createElement('div');b.className='casastudent-family';b.innerHTML='StudentBnB faz parte da família <a href="https://casastudent.eu/">CasaStudent ↗</a>';f.appendChild(b)}});
