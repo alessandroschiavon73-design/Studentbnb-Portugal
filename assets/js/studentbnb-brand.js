@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.brand').forEach(b=>{const labels=[...b.children].filter(e=>e.tagName==='SPAN'&&!e.classList.contains('brand-icon')),l=labels[labels.length-1];if(!l)return;const s=l.querySelector('small'),h=s?s.outerHTML:'';l.innerHTML='Student<strong>BnB</strong>'+h;});
   const hero=document.querySelector('.home-hero .hero-copy');
   const brand=document.querySelector('.site-header .brand');if(brand)brand.setAttribute('aria-label','StudentBnB home');
   if(hero){
@@ -10,7 +11,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     const sh=hero.querySelector('.search-card h2');if(sh)sh.textContent='Onde queres ficar?';
   }
   const intl=document.querySelector('.footer-international > strong');if(intl)intl.textContent='Para estadias mais longas: CasaStudent';
-  const copy=document.querySelector('.footer-bottom span:first-child');if(copy)copy.textContent='© 2026 StudentBnB';
+  const bottom=document.querySelectorAll('.footer-bottom span');if(bottom[0])bottom[0].textContent='© 2026 StudentBnB';if(bottom[1])bottom[1].textContent='Portugal · studentbnb.pt';
   const login=document.querySelector('#login-title');if(login)login.textContent='Entrar no StudentBnB';
   const f=document.querySelector('.site-footer .container')||document.querySelector('footer');if(f&&!f.querySelector('.casastudent-family')){const b=document.createElement('div');b.className='casastudent-family';b.innerHTML='StudentBnB é dedicado a estadias temporárias dentro da comunidade estudantil. Para uma solução mais estável, visita <a href="https://casastudent.eu/">CasaStudent ↗</a>.';f.appendChild(b)}
 });
+(function(){if(document.querySelector('script[data-city-visuals]'))return;const s=document.createElement('script');s.src='assets/js/city-visuals.js?v=20260830-real-city-photos';s.defer=true;s.dataset.cityVisuals='1';document.head.appendChild(s)})();
