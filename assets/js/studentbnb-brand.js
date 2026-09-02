@@ -11,3 +11,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   let c=document.querySelector('link[rel="canonical"]');if(!c){c=document.createElement('link');c.rel='canonical';document.head.appendChild(c)}c.href=base+(location.pathname==='/'?'':location.pathname.replace(/^\//,''))+location.search;const og=document.querySelector('meta[property="og:site_name"]');if(og)og.content='StudentBnB — Experimenta antes de escolher';const intl=document.querySelector('.footer-international > strong');if(intl)intl.textContent='Para estadias mais longas: CasaStudent';const bottom=document.querySelectorAll('.footer-bottom span');if(bottom[0])bottom[0].textContent='© 2026 StudentBnB';if(bottom[1])bottom[1].textContent='Portugal · studentbnb.pt';const login=document.querySelector('#login-title');if(login)login.textContent='Entrar no StudentBnB';const f=document.querySelector('.site-footer .container')||document.querySelector('footer');if(f&&!f.querySelector('.casastudent-family')){const b=document.createElement('div');b.className='casastudent-family';b.innerHTML='StudentBnB é dedicado a estadias temporárias dentro da comunidade estudantil. Para uma solução mais estável, visita <a href="https://casastudent.eu/">CasaStudent ↗</a>.';f.appendChild(b)}
 });
 (function(){if(document.querySelector('script[data-city-visuals]'))return;const s=document.createElement('script');s.src='assets/js/city-visuals.js?v=20260830-real-city-photos';s.defer=true;s.dataset.cityVisuals='1';document.head.appendChild(s)})();
+
+(function(){
+  const apply=()=>{
+    const canonical=document.querySelector('link[rel="canonical"]')?.href||location.href;
+    const description=document.querySelector('meta[name="description"]')?.content||'';
+    let schema=document.querySelector('#studentbnb-webpage-schema');
+    if(!schema){schema=document.createElement('script');schema.id='studentbnb-webpage-schema';schema.type='application/ld+json';document.head.appendChild(schema);}
+    schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'WebPage',name:document.title,url:canonical,description,inLanguage:document.documentElement.lang||'pt-PT'});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(apply,0));else setTimeout(apply,0);
+})();

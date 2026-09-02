@@ -7,6 +7,9 @@
   const q = (selector, root = document) => root.querySelector(selector);
   const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const text = (key, fallback = "") => (cfg.ui && cfg.ui[key]) || fallback || key;
+  const demoText = { badge: "Exemplo demonstrativo", contact: "Contactos desativados neste exemplo", profiles: "Perfis de exemplo" };
+  (data.listings || []).forEach(record => { record.is_demo = true; });
+  (data.studentRequests || []).forEach(record => { record.is_demo = true; });
 
   function toast(message) {
     const node = q("#toast");
@@ -19,6 +22,15 @@
 
   function formatMoney(value) {
     return new Intl.NumberFormat(cfg.locale, { style: "currency", currency: cfg.currency, maximumFractionDigits: 0 }).format(Number(value || 0));
+  }
+
+  function testStayPrices(record) {
+    const positive = (...values) => values.map(Number).find((value) => Number.isFinite(value) && value > 0);
+    const monthly = positive(record.monthly_reference_price, record.price) ?? 0;
+    const p30 = positive(record.studentbnbPrice30, record.studentbnb_price_30) ?? Math.round(monthly * 1.25);
+    const p14 = positive(record.studentbnbPrice14, record.studentbnb_price_14) ?? Math.round(p30 / 2);
+    const p7 = positive(record.studentbnbPrice7, record.studentbnb_price_7) ?? Math.round(p30 / 4);
+    return { p7, p14, p30, monthly };
   }
 
   function cityById(id) {
@@ -140,15 +152,16 @@
 
   function listingCard(record) {
     const city = cityById(record.city_id);
+    const stayPrices = testStayPrices(record);
     const article = document.createElement("article");
     article.className = "listing-card";
     article.dataset.city = record.city_id;
     article.dataset.type = record.type;
-    article.dataset.price = record.price;
+    article.dataset.price = stayPrices.p7;
     article.innerHTML = `
       <a href="${cfg.routes.listing}?id=${encodeURIComponent(record.id)}"><img class="listing-image" src="${record.image}" alt="${record.title}"></a>
-      <div class="listing-main"><div class="listing-title-row"><h3><a href="${cfg.routes.listing}?id=${encodeURIComponent(record.id)}">${record.title}</a></h3><span class="verification-badge">✓ ${text("verifiedEmail")}</span></div><div class="listing-meta"><span>⌖ ${city.name} · ${record.district_name}</span><span>▣ ${record.available_from}</span></div><div class="listing-submeta"><span>${record.arrangement}</span><span>${record.minimum_stay}</span></div></div>
-      <div class="listing-price"><div class="price">${formatMoney(record.price)} <small>/${text("monthShort")}</small></div><span class="expenses-badge ${record.expenses_included ? "included" : "excluded"}">${record.expenses_included ? text("expensesIncluded") : text("expensesExcluded")}</span></div>
+      <div class="listing-main"><div class="listing-title-row"><h3><a href="${cfg.routes.listing}?id=${encodeURIComponent(record.id)}">${record.title}</a></h3>${record.is_demo ? `<span class="demo-badge">${demoText.badge}</span>` : `<span class="verification-badge">✓ ${text("verifiedEmail")}</span>`}</div><div class="listing-meta"><span>⌖ ${city.name} · ${record.district_name}</span><span>▣ ${record.available_from}</span></div><div class="listing-submeta"><span>${record.arrangement}</span><span>1 semana · 2 semanas · 1 mês</span></div></div>
+      <div class="listing-price"><div class="price">${formatMoney(stayPrices.p7)} <small>/7 dias</small></div><div class="test-price-breakdown"><span>14 dias ${formatMoney(stayPrices.p14)}</span><span>30 dias ${formatMoney(stayPrices.p30)}</span></div><span class="expenses-badge ${record.expenses_included ? "included" : "excluded"}">${record.expenses_included ? text("expensesIncluded") : text("expensesExcluded")}</span></div>
       <div class="listing-actions"><button class="favorite-button" type="button" aria-label="${text("favorite")}">♡</button></div>`;
     q(".favorite-button", article).addEventListener("click", (event) => {
       const button = event.currentTarget;
@@ -170,7 +183,10 @@
     populateDistricts(citySelect, zoneSelect, true);
     q("#city-name").textContent = selectedCity.name;
     q("#city-region").textContent = selectedCity.region;
-    q("#city-description").textContent = selectedCity.description;
+    const cityDescription = `${selectedCity.name}: experimenta a casa, a zona e a convivência durante uma semana, duas semanas ou um mês antes de escolher.`;
+    q("#city-description").textContent = cityDescription;
+    document.title = `${selectedCity.name} — 1 semana, 2 semanas ou 1 mês | StudentBnB`;
+    window.StudentBnBSEO?.update({title:document.title,description:cityDescription});
     const hero = q("#city-hero-bg");
     if (hero) hero.style.backgroundImage = `url('${selectedCity.image}')`;
     if (params.get("type") && q("#filter-type")) q("#filter-type").value = params.get("type");
@@ -181,7 +197,7 @@
       const typeValue = q("#filter-type").value;
       const maxPrice = Number(q("#filter-price").value || Infinity);
       const records = [...data.listings, ...api.read("listings", [])].filter((record) =>
-        (!cityId || record.city_id === cityId) && (!zone || record.district_id === zone) && (!typeValue || record.type === typeValue) && Number(record.price) <= maxPrice
+        (!cityId || record.city_id === cityId) && (!zone || record.district_id === zone) && (!typeValue || record.type === typeValue) && testStayPrices(record).p7 <= maxPrice
       );
       list.innerHTML = "";
       records.forEach((record) => list.appendChild(listingCard(record)));
@@ -198,17 +214,28 @@
     const id = new URLSearchParams(location.search).get("id");
     const record = [...data.listings, ...api.read("listings", [])].find((item) => item.id === id) || data.listings[0];
     const city = cityById(record.city_id);
+    const stayPrices = testStayPrices(record);
+    const robots = document.head.querySelector('meta[name="robots"]');
+    if (robots && record.is_demo) robots.content = "noindex,follow";
+    document.title = `${record.title} | StudentBnB`;
+    window.StudentBnBSEO?.update({title:document.title,description:record.description});
     q("#listing-title").textContent = record.title;
     q("#listing-place").textContent = `${city.name} · ${record.district_name}`;
-    q("#listing-price").textContent = formatMoney(record.price);
+    q("#listing-price").innerHTML = `${formatMoney(stayPrices.p7)} <small>/7 dias</small><span class="detail-test-prices"><span>14 dias ${formatMoney(stayPrices.p14)}</span><span>30 dias ${formatMoney(stayPrices.p30)}</span></span><span class="monthly-reference">Renda mensal de referência: ${formatMoney(stayPrices.monthly)}</span>`;
     q("#listing-description").textContent = record.description;
     q("#listing-costs").textContent = record.expenses_included ? text("expensesIncludedLong") : `${text("expensesExcludedLong")} ${formatMoney(record.expenses_amount || 0)}`;
     q("#listing-availability").textContent = record.available_from;
-    q("#listing-minimum").textContent = record.minimum_stay;
+    q("#listing-minimum").textContent = "1 semana · 2 semanas · 1 mês";
     q("#listing-deposit").textContent = formatMoney(record.deposit || 0);
     q("#listing-main-image").src = record.image;
     qa("[data-gallery-image]").forEach((img, index) => { img.src = record.images[index % record.images.length]; });
-    q("#contact-owner").addEventListener("click", () => {
+    const contactOwner = q("#contact-owner");
+    if (record.is_demo) {
+      contactOwner.disabled = true;
+      contactOwner.textContent = demoText.contact;
+      return;
+    }
+    contactOwner.addEventListener("click", () => {
       const user = api.read("user");
       if (!user || !user.email_verified_at) {
         q("[data-login]").click();
@@ -227,6 +254,11 @@
       city_id: raw.city,
       district_id: raw.zone || null,
       price: raw.price ? Number(raw.price) : undefined,
+      monthly_reference_price: raw.price ? Number(raw.price) : undefined,
+      studentbnb_price_7: raw.studentbnbPrice7 ? Number(raw.studentbnbPrice7) : undefined,
+      studentbnb_price_14: raw.studentbnbPrice14 ? Number(raw.studentbnbPrice14) : undefined,
+      studentbnb_price_30: raw.studentbnbPrice30 ? Number(raw.studentbnbPrice30) : undefined,
+      studentbnb_uplift_percent: raw.studentbnbUplift ? Number(raw.studentbnbUplift) : 25,
       budget_max: raw.budget ? Number(raw.budget) : undefined,
       currency: cfg.currency,
       source_domain: cfg.domain,
@@ -289,8 +321,9 @@
         const city = cityById(record.city_id);
         const card = document.createElement("article");
         card.className = "simple-student-card";
-        card.innerHTML = `<div class="student-card-top"><div style="display:flex;align-items:center;gap:12px"><span class="student-initial">${record.name.charAt(0)}</span><div><h2>${record.name}</h2><small>${city.name} · ${record.course}</small></div></div><span class="student-budget">≤ ${formatMoney(record.budget_max)}</span></div><div class="record-meta"><span>${record.type}</span><span>${record.available_from}</span><span>${record.languages}</span></div><p>${record.bio}</p><button class="btn btn-white" type="button" data-student-contact>${text("contactStudent")}</button>`;
+        card.innerHTML = `<div class="student-card-top"><div style="display:flex;align-items:center;gap:12px"><span class="student-initial">${record.name.charAt(0)}</span><div><h2>${record.name}</h2><small>${city.name} · ${record.course}</small></div></div><span class="student-budget">≤ ${formatMoney(record.budget_max)}</span></div>${record.is_demo ? `<span class="demo-badge">${demoText.badge}</span>` : ""}<div class="record-meta"><span>${record.type}</span><span>${record.available_from}</span><span>${record.languages}</span></div><p>${record.bio}</p><button class="btn btn-white" type="button" data-student-contact${record.is_demo ? " disabled" : ""}>${record.is_demo ? demoText.contact : text("contactStudent")}</button>`;
         q("[data-student-contact]", card).addEventListener("click", () => {
+          if (record.is_demo) return;
           const user = api.read("user");
           if (!user || !user.email_verified_at) q("[data-login]").click(); else toast(text("contactProtected"));
         });
