@@ -13,10 +13,20 @@
 .site-footer{background:#0F766E!important;color:#fff!important;border-top-color:rgba(255,255,255,.18)!important}.site-footer .brand,.site-footer h2,.site-footer h3,.site-footer strong{color:#fff!important}.site-footer .brand strong{color:#99F6E4!important}.site-footer p,.site-footer a,.site-footer .footer-links a{color:#D8F3EF!important}.site-footer .footer-grid,.site-footer .footer-international,.site-footer .footer-bottom{border-color:rgba(255,255,255,.16)!important}.site-footer .footer-country-links a{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.24)!important;color:#fff!important}.site-footer .footer-country-links a:hover,.site-footer .footer-country-links a[aria-current="page"]{border-color:#99F6E4!important;box-shadow:0 0 0 1px #99F6E4 inset}.site-footer .network-open{color:#99F6E4!important}
 @media(max-width:700px){.site-header .brand{font-size:28px;line-height:1.05}.site-header .brand small{font-size:11px;margin-top:3px}.site-header .brand>span:last-child::after{font-size:9px;margin-top:3px}.header-inner{height:auto;min-height:82px;padding:10px 0}.brand-icon{width:46px;height:46px;flex:0 0 46px}.studentbnb-duration-options{gap:7px;font-size:12px}.studentbnb-duration-options strong{padding:6px 9px}.city-hero-bg{opacity:1!important;background-position:center center!important}.city-hero-bg:before{display:none!important}.city-hero:after{background:linear-gradient(180deg,rgba(12,18,25,.06) 24%,rgba(12,18,25,.76) 100%)!important}}
 
-
 /* StudentBnB test-stay price ladder */
 .test-price-breakdown{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 9px;margin-top:4px;font-size:12px;font-weight:800;line-height:1.3;color:#40505a}
 .test-price-breakdown span{white-space:nowrap}
 .detail-test-prices{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:5px;font-size:13px;font-weight:800;line-height:1.35;color:#40505a}
 .monthly-reference{display:block;margin-top:5px;font-size:12px;font-weight:600;color:#68747c}
 @media(max-width:760px){.test-price-breakdown{justify-content:flex-start}.detail-test-prices{font-size:12px}}
+
+/* Curated city photography — Wikimedia Commons */
+.city-card img{object-fit:cover!important;object-position:center!important}
+.city-card[href*="city=lisboa"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Lisboa%20panoramica%20vista%20do%20rio%20Tejo%202012.jpg?width=1400")}
+.city-card[href*="city=porto"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Panoramic%20View%20of%20Porto%27s%20Ribeira%20District%20and%20Dom%20Lu%C3%ADs%20I%20Bridge%20%2855245842707%29.jpg?width=1400")}
+.city-card[href*="city=coimbra"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Panoramic%20view%20of%20Coimbra%20from%20highest%20building.jpg?width=1400")}
+.city-card[href*="city=braga"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Panoramic%20view%20of%20Braga.jpg?width=1400")}
+.city-card[href*="city=aveiro"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Aveiro%20Canal.jpg?width=1400")}
+.city-card[href*="city=faro"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Ria%20formosa%20faro.jpg?width=1400")}
+.city-card[href*="city=evora"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Evora%20panorama.jpg?width=1400")}
+.city-card[href*="city=covilha"] img{content:url("https://commons.wikimedia.org/wiki/Special:FilePath/Perspectiva%20da%20Covilh%C3%A3.jpg?width=1400")}
